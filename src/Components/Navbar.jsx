@@ -3,14 +3,38 @@ import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../Context/useCart';
 
-export default function Navbar({ currentUser, onLogout }) {
+export default function Navbar({ currentUser, onLogout, theme: propTheme, onToggleTheme }) {
   const { carrito, totalCartCount } = useCart();
   const [busqueda, setBusqueda] = useState('');
   const [userOpen, setUserOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const [localTheme, setLocalTheme] = useState(() => {
+    try {
+      return localStorage.getItem('theme') || 'dark';
+    } catch {
+      return 'dark';
+    }
+  });
+
   const userRef = useRef(null);
   const cartRef = useRef(null);
   const navigate = useNavigate();
+
+  const currentTheme = propTheme ?? localTheme;
+
+  const handleToggleTheme = () => {
+    const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    if (onToggleTheme) {
+      onToggleTheme();
+    } else {
+      setLocalTheme(nextTheme);
+      document.documentElement.setAttribute('data-theme', nextTheme);
+      document.documentElement.setAttribute('data-bs-theme', nextTheme);
+      try {
+        localStorage.setItem('theme', nextTheme);
+      } catch {}
+    }
+  };
 
   // Cerrar menús al hacer clic fuera
   useEffect(() => {
@@ -113,6 +137,25 @@ export default function Navbar({ currentUser, onLogout }) {
               <i className="bi bi-grid"></i>
               <span className="d-none d-md-inline">Productos</span>
             </a>
+
+            {/* Alternar Modo Claro / Oscuro */}
+            <button
+              type="button"
+              id="theme-toggle-btn"
+              className="nav-action-btn"
+              onClick={handleToggleTheme}
+              aria-label={`Cambiar a modo ${currentTheme === 'dark' ? 'claro' : 'oscuro'}`}
+              title={`Cambiar a modo ${currentTheme === 'dark' ? 'claro' : 'oscuro'}`}
+            >
+              <i
+                className={`bi ${
+                  currentTheme === 'dark' ? 'bi-sun-fill text-warning' : 'bi-moon-stars-fill text-primary'
+                }`}
+              ></i>
+              <span className="d-none d-lg-inline">
+                {currentTheme === 'dark' ? 'Claro' : 'Oscuro'}
+              </span>
+            </button>
 
             {/* Perfil / Iniciar Sesión */}
             {currentUser ? (

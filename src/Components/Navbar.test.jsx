@@ -134,4 +134,21 @@ describe('Navbar - Contenido general y compacto', () => {
     fireEvent.click(clearButton)
     expect(searchInput).toHaveValue('')
   })
+
+  it('permite alternar entre modo claro y modo oscuro', () => {
+    localStorage.setItem('theme', 'dark')
+    renderNavbar()
+
+    const themeBtn = screen.getByRole('button', { name: /Cambiar a modo claro/i })
+    expect(themeBtn).toBeInTheDocument()
+
+    fireEvent.click(themeBtn)
+    expect(document.documentElement.getAttribute('data-theme')).toBe('light')
+
+    const themeBtnLight = screen.getByRole('button', { name: /Cambiar a modo oscuro/i })
+    expect(themeBtnLight).toBeInTheDocument()
+
+    fireEvent.click(themeBtnLight)
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
+  })
 })
