@@ -61,7 +61,7 @@ describe('Navbar - Contenido general', () => {
     expect(screen.getByRole('link', { name: 'Inicio' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Productos/ })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Admin/ })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Cart \(/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Cart \(/ })).toBeInTheDocument()
   })
 
   it('muestra la cantidad de productos del carrito', () => {
@@ -81,6 +81,33 @@ describe('Navbar - Contenido general', () => {
     renderNavbar()
 
     expect(document.getElementById('cart-count')).toHaveTextContent('0')
+  })
+
+  it('al pulsar el botón del carrito abre un menú desplegable con productos y botón para ir al carrito', () => {
+    localStorage.setItem(
+      'cart_items',
+      JSON.stringify([{ ...PRODUCTOS[0], cantidad: 2 }])
+    )
+    renderNavbar()
+
+    const cartBtn = screen.getByRole('button', { name: /Cart \(/ })
+    fireEvent.click(cartBtn)
+
+    expect(screen.getByText(PRODUCTOS[0].nombre)).toBeInTheDocument()
+    expect(screen.getByText(/2 x/)).toBeInTheDocument()
+
+    const linkCarrito = screen.getByRole('link', { name: /Ir a la página del carrito/i })
+    expect(linkCarrito).toBeInTheDocument()
+    expect(linkCarrito).toHaveAttribute('href', '/carrito')
+  })
+
+  it('muestra mensaje de carrito vacío en el desplegable cuando no hay artículos', () => {
+    renderNavbar()
+
+    const cartBtn = screen.getByRole('button', { name: /Cart \(/ })
+    fireEvent.click(cartBtn)
+
+    expect(screen.getByText(/Tu carrito está vacío/i)).toBeInTheDocument()
   })
 
   it('renderiza la barra de búsqueda y permite buscar productos', () => {

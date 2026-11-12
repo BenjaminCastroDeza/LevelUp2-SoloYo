@@ -1,12 +1,34 @@
 // src/components/Navbar.jsx
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../Context/useCart';
 
 export default function Navbar({ currentUser, onLogout }) {
-  const { totalCartCount } = useCart();
+  const { carrito, totalCartCount } = useCart();
   const [busqueda, setBusqueda] = useState('');
+  const [cartOpen, setCartOpen] = useState(false);
+  const cartRef = useRef(null);
   const navigate = useNavigate();
+
+  // Cerrar al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (cartRef.current && !cartRef.current.contains(e.target)) {
+        setCartOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Cerrar con Escape
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setCartOpen(false);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -21,6 +43,11 @@ export default function Navbar({ currentUser, onLogout }) {
   const primerNombre = currentUser?.nombre
     ? currentUser.nombre.split(' ')[0]
     : 'Usuario';
+
+  const subtotalCarrito = carrito.reduce(
+    (acc, item) => acc + (item.precio || 0) * (item.cantidad || 1),
+    0
+  );
 
   return (
     <header className="py-2 sticky-top top-header">
@@ -123,19 +150,103 @@ export default function Navbar({ currentUser, onLogout }) {
               </Link>
             )}
 
-            {/* Botón del Carrito */}
-            <Link
-              to="/carrito"
-              className="btn btn-sm btn-outline-light d-flex align-items-center gap-2"
-              aria-label={`Cart (${totalCartCount})`}
-            >
-              <i className="bi bi-cart3 fs-5"></i>
-              <span className="d-none d-sm-inline">Cart (</span>
-              <span id="cart-count" className="badge bg-info text-dark rounded-pill fw-bold">
-                {totalCartCount}
-              </span>
-              <span className="d-none d-sm-inline">)</span>
-            </Link>
+            {/* Botón y Menú Desplegable del Carrito */}
+            <div className="position-relative" ref={cartRef}>
+              <button
+                type="button"
+                id="cart-toggle-btn"
+                className="btn btn-sm btn-outline-light d-flex align-items-center gap-2"
+                aria-label={`Cart (${totalCartCount})`}
+                aria-expanded={cartOpen}
+                onClick={() => setCartOpen((prev) => !prev)}
+                title="Ver carrito de compras"
+              >
+                <i className="bi bi-cart3 fs-5"></i>
+                <span className="d-none d-sm-inline">Cart (</span>
+                <span id="cart-count" className="badge bg-info text-dark rounded-pill fw-bold">
+                  {totalCartCount}
+                </span>
+                <span className="d-none d-sm-inline">)</span>
+              </button>
+
+              {/* Menú Desplegable */}
+              {cartOpen && (
+                <div
+                  className="dropdown-menu dropdown-menu-dark-custom dropdown-menu-end p-3 show position-absolute mt-2 shadow-lg"
+                  style={{ right: 0, minWidth: '320px', maxWidth: '360px', zIndex: 1060 }}
+                  role="dialog"
+                  aria-label="Resumen del carrito"
+                >
+                  <div className="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary border-opacity-50">
+                    <span className="fw-bold text-white small d-flex align-items-center gap-2">
+                      <i className="bi bi-cart3 text-info"></i> Tu Carrito
+                    </span>
+                    <span className="badge bg-secondary small">
+                      {totalCartCount} {totalCartCount === 1 ? 'producto' : 'productos'}
+                    </span>
+                  </div>
+
+                  {carrito.length === 0 ? (
+                    <div className="text-center py-4 text-secondary">
+                      <i className="bi bi-cart-x fs-1 d-block mb-2 text-secondary opacity-75"></i>
+                      <p className="small mb-1 text-white">Tu carrito está vacío</p>
+                      <p className="small text-secondary mb-0">Agrega productos desde el catálogo</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div
+                        className="pe-1 my-2"
+                        style={{ maxHeight: '220px', overflowY: 'auto' }}
+                      >
+                        {carrito.map((item) => (
+                          <div
+                            key={item.id}
+                            className="d-flex align-items-center gap-2 py-2 border-bottom border-secondary border-opacity-25"
+                          >
+                            <img
+                              src={item.img}
+                              alt={item.nombre}
+                              className="rounded border border-secondary"
+                              style={{ width: '42px', height: '42px', objectFit: 'cover' }}
+                            />
+                            <div className="flex-grow-1 overflow-hidden" style={{ minWidth: 0 }}>
+                              <div
+                                className="text-white small text-truncate fw-semibold"
+                                title={item.nombre}
+                              >
+                                {item.nombre}
+                              </div>
+                              <div className="text-secondary small">
+                                {item.cantidad} x ${Number(item.precio || 0).toLocaleString('es-CL')}
+                              </div>
+                            </div>
+                            <div className="text-info small fw-bold text-nowrap">
+                              ${(Number(item.precio || 0) * (item.cantidad || 1)).toLocaleString('es-CL')}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="d-flex justify-content-between align-items-center pt-2 pb-1 border-top border-secondary border-opacity-50 my-2">
+                        <span className="text-secondary small">Subtotal estimado:</span>
+                        <span className="text-white fw-bold fs-6">
+                          ${subtotalCarrito.toLocaleString('es-CL')} CLP
+                        </span>
+                      </div>
+                    </>
+                  )}
+
+                  <Link
+                    to="/carrito"
+                    className="btn btn-primary w-100 fw-bold d-flex align-items-center justify-content-center gap-2 mt-2"
+                    onClick={() => setCartOpen(false)}
+                  >
+                    <i className="bi bi-arrow-right-circle"></i>
+                    <span>Ir a la página del carrito</span>
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
