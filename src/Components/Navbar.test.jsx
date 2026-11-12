@@ -82,4 +82,20 @@ describe('Navbar - Contenido general', () => {
 
     expect(document.getElementById('cart-count')).toHaveTextContent('0')
   })
+
+  it('renderiza la barra de búsqueda y permite buscar productos', () => {
+    renderNavbar()
+
+    const searchInput = screen.getByRole('searchbox', { name: /Buscar productos/i })
+    expect(searchInput).toBeInTheDocument()
+
+    fireEvent.change(searchInput, { target: { value: 'teclado' } })
+    expect(searchInput).toHaveValue('teclado')
+
+    const clearButton = screen.getByRole('button', { name: /Limpiar búsqueda/i })
+    expect(clearButton).toBeInTheDocument()
+
+    fireEvent.click(clearButton)
+    expect(searchInput).toHaveValue('')
+  })
 })
