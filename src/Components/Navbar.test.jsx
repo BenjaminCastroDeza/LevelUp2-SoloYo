@@ -22,14 +22,14 @@ describe('Navbar - Sesión', () => {
     renderNavbar()
 
     expect(screen.getByRole('link', { name: 'Iniciar sesión' })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /Salir/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Cerrar sesión/ })).not.toBeInTheDocument()
   })
 
-  it('muestra un saludo con el primer nombre del usuario y el botón de salida', () => {
+  it('muestra el botón de usuario con el primer nombre del usuario cuando está logueado', () => {
     renderNavbar({ currentUser: { nombre: 'Benjamin Castro' } })
 
     expect(
-      screen.getByRole('button', { name: 'Hola, Benjamin (Salir)' })
+      screen.getByRole('button', { name: /Benjamin/i })
     ).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Iniciar sesión' })).not.toBeInTheDocument()
   })
@@ -38,18 +38,24 @@ describe('Navbar - Sesión', () => {
     renderNavbar({ currentUser: {} })
 
     expect(
-      screen.getByRole('button', { name: 'Hola, Usuario (Salir)' })
+      screen.getByRole('button', { name: /Usuario/i })
     ).toBeInTheDocument()
   })
 
-  it('ejecuta onLogout al pulsar el saludo', () => {
+  it('al pulsar el botón de usuario abre el menú con Editar perfil y Cerrar sesión, y ejecuta onLogout', () => {
     const onLogout = renderNavbar({
       currentUser: { nombre: 'Ana Pérez' },
       onLogout: vi.fn(),
     })
 
-    fireEvent.click(screen.getByRole('button', { name: 'Hola, Ana (Salir)' }))
+    const userBtn = screen.getByRole('button', { name: /Ana/i })
+    fireEvent.click(userBtn)
 
+    expect(screen.getByRole('menuitem', { name: /Editar perfil/i })).toBeInTheDocument()
+    const logoutBtn = screen.getByRole('menuitem', { name: /Cerrar sesión/i })
+    expect(logoutBtn).toBeInTheDocument()
+
+    fireEvent.click(logoutBtn)
     expect(onLogout).toHaveBeenCalledTimes(1)
   })
 })

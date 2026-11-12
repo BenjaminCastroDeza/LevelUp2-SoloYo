@@ -17,29 +17,33 @@ describe('App - Sesión de usuario', () => {
     renderApp()
 
     expect(screen.getByRole('link', { name: 'Iniciar sesión' })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /Salir/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Cerrar sesión/ })).not.toBeInTheDocument()
   })
 
-  it('lee el usuario actual desde localStorage', () => {
+  it('lee el usuario actual desde localStorage y muestra el botón de usuario', () => {
     localStorage.setItem('currentUser', JSON.stringify(USUARIO))
     renderApp()
 
     expect(
-      screen.getByRole('button', { name: 'Hola, Benjamin (Salir)' })
+      screen.getByRole('button', { name: /Benjamin/i })
     ).toBeInTheDocument()
   })
 
-  it('no cierra sesión si el usuario cancela la confirmación', () => {
+  it('no cierra sesión si el usuario cancela la confirmación al pulsar cerrar sesión', () => {
     localStorage.setItem('currentUser', JSON.stringify(USUARIO))
     window.confirm = vi.fn(() => false)
     renderApp()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Hola, Benjamin (Salir)' }))
+    // Abre el menú desplegable de usuario
+    fireEvent.click(screen.getByRole('button', { name: /Benjamin/i }))
+
+    // Hace clic en "Cerrar sesión" en el menú desplegable
+    fireEvent.click(screen.getByRole('menuitem', { name: /Cerrar sesión/i }))
 
     expect(window.confirm).toHaveBeenCalled()
     expect(localStorage.getItem('currentUser')).not.toBeNull()
     expect(
-      screen.getByRole('button', { name: 'Hola, Benjamin (Salir)' })
+      screen.getByRole('button', { name: /Benjamin/i })
     ).toBeInTheDocument()
   })
 })

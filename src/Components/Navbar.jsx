@@ -6,13 +6,18 @@ import { useCart } from '../Context/useCart';
 export default function Navbar({ currentUser, onLogout }) {
   const { carrito, totalCartCount } = useCart();
   const [busqueda, setBusqueda] = useState('');
+  const [userOpen, setUserOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const userRef = useRef(null);
   const cartRef = useRef(null);
   const navigate = useNavigate();
 
-  // Cerrar al hacer clic fuera
+  // Cerrar menús al hacer clic fuera
   useEffect(() => {
     const handleClickOutside = (e) => {
+      if (userRef.current && !userRef.current.contains(e.target)) {
+        setUserOpen(false);
+      }
       if (cartRef.current && !cartRef.current.contains(e.target)) {
         setCartOpen(false);
       }
@@ -24,7 +29,10 @@ export default function Navbar({ currentUser, onLogout }) {
   // Cerrar con Escape
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape') setCartOpen(false);
+      if (e.key === 'Escape') {
+        setUserOpen(false);
+        setCartOpen(false);
+      }
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
@@ -125,18 +133,72 @@ export default function Navbar({ currentUser, onLogout }) {
 
           {/* 4. Grupo de acciones: Usuario (persona) al lado del Carrito */}
           <div className="d-flex align-items-center gap-2 order-2 order-lg-3 ms-auto ms-lg-0">
-            {/* Botón de usuario / Iniciar sesión con icono de persona */}
+            {/* Botón de usuario / Iniciar sesión con icono de persona y menú desplegable */}
             {currentUser ? (
-              <button
-                onClick={onLogout}
-                className="btn btn-sm btn-outline-info d-flex align-items-center gap-2"
-                id="nav-user"
-                aria-label={`Hola, ${primerNombre} (Salir)`}
-                title={`Hola, ${primerNombre}`}
-              >
-                <i className="bi bi-person-circle fs-5"></i>
-                <span className="d-none d-md-inline">Hola, {primerNombre} (Salir)</span>
-              </button>
+              <div className="position-relative" ref={userRef}>
+                <button
+                  type="button"
+                  id="nav-user"
+                  className="btn btn-sm btn-outline-info d-flex align-items-center gap-2"
+                  onClick={() => {
+                    setUserOpen((prev) => !prev);
+                    setCartOpen(false);
+                  }}
+                  aria-expanded={userOpen}
+                  aria-label={`Usuario: ${primerNombre}`}
+                  title={`Usuario: ${primerNombre}`}
+                >
+                  <i className="bi bi-person-circle fs-5"></i>
+                  <span className="d-none d-md-inline fw-semibold">{primerNombre}</span>
+                  <i className="bi bi-chevron-down small"></i>
+                </button>
+
+                {/* Menú Desplegable de Usuario Logueado */}
+                {userOpen && (
+                  <div
+                    className="dropdown-menu dropdown-menu-dark-custom dropdown-menu-end p-2 show position-absolute mt-2 shadow-lg"
+                    style={{ right: 0, minWidth: '220px', zIndex: 1060 }}
+                    role="menu"
+                    aria-label="Menú de usuario"
+                  >
+                    <div className="px-3 py-2 border-bottom border-secondary border-opacity-50 mb-1">
+                      <div className="text-white fw-bold small text-truncate">
+                        {currentUser.nombre || 'Usuario'}
+                      </div>
+                      {currentUser.correo && (
+                        <div className="text-secondary small text-truncate">
+                          {currentUser.correo}
+                        </div>
+                      )}
+                    </div>
+
+                    <Link
+                      to="/registro"
+                      className="dropdown-item dropdown-item-custom d-flex align-items-center gap-2 py-2 px-3 text-white text-decoration-none"
+                      role="menuitem"
+                      onClick={() => setUserOpen(false)}
+                    >
+                      <i className="bi bi-person-gear text-info"></i>
+                      <span>Editar perfil</span>
+                    </Link>
+
+                    <hr className="dropdown-divider border-secondary border-opacity-50 my-1" />
+
+                    <button
+                      type="button"
+                      className="dropdown-item dropdown-item-custom d-flex align-items-center gap-2 py-2 px-3 text-danger border-0 bg-transparent w-100 text-start"
+                      role="menuitem"
+                      onClick={() => {
+                        setUserOpen(false);
+                        onLogout();
+                      }}
+                    >
+                      <i className="bi bi-box-arrow-right"></i>
+                      <span>Cerrar sesión</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               <Link
                 to="/login"
@@ -158,7 +220,10 @@ export default function Navbar({ currentUser, onLogout }) {
                 className="btn btn-sm btn-outline-light d-flex align-items-center gap-2"
                 aria-label={`Cart (${totalCartCount})`}
                 aria-expanded={cartOpen}
-                onClick={() => setCartOpen((prev) => !prev)}
+                onClick={() => {
+                  setCartOpen((prev) => !prev);
+                  setUserOpen(false);
+                }}
                 title="Ver carrito de compras"
               >
                 <i className="bi bi-cart3 fs-5"></i>
@@ -169,7 +234,7 @@ export default function Navbar({ currentUser, onLogout }) {
                 <span className="d-none d-sm-inline">)</span>
               </button>
 
-              {/* Menú Desplegable */}
+              {/* Menú Desplegable del Carrito */}
               {cartOpen && (
                 <div
                   className="dropdown-menu dropdown-menu-dark-custom dropdown-menu-end p-3 show position-absolute mt-2 shadow-lg"
