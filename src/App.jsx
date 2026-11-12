@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { CartProvider } from './Context/CartContext';
 import Navbar from './Components/Navbar';
+import Footer from './Components/Footer';
 import Home from './Pages/Home';
 import Carrito from './Pages/Carrito';
 import Registro from './Pages/Registro';
@@ -42,7 +43,7 @@ export default function App() {
           <Route path="/admin" element={<AdminProductos />} />
           <Route path="/admin/crear" element={<FormProducto />} />
           <Route path="/admin/editar/:id" element={<FormProducto />} />     
-          </Routes>
+        </Routes>
       </div>
     </CartProvider>
   );

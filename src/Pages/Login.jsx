@@ -112,7 +112,7 @@ export default function Login({setCurrentUser}) {
                 <input
                   type="password"
                   className="form-control"
-                  id="password"
+                  id="contrasena"
                   placeholder="••••••••"
                   value={contrasena}
                   onChange={(e) => setContrasena(e.target.value)}

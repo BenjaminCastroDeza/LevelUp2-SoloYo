@@ -1,7 +1,7 @@
 // src/pages/AdminProductos.jsx
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useCart } from '../Context/CartContext';
+import { useCart } from '../Context/useCart';
 
 export default function AdminProductos() {
   const { productos, eliminarProducto } = useCart();

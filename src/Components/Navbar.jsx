@@ -1,6 +1,6 @@
 // src/components/Navbar.jsx
 import { Link } from 'react-router-dom';
-import { useCart } from '../Context/CartContext';
+import { useCart } from '../Context/useCart';
 
 export default function Navbar({ currentUser, onLogout }) {
   const { totalCartCount } = useCart();

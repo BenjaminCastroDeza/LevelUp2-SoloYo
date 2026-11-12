@@ -1,7 +1,7 @@
 // src/pages/FormProducto.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { useCart } from '../Context/CartContext';
+import { useCart } from '../Context/useCart';
 
 const CATEGORIAS = [
   'Juegos de Mesa',
@@ -18,32 +18,29 @@ export default function FormProducto() {
   const navigate = useNavigate();
   const { productos, crearProducto, actualizarProducto } = useCart();
 
-  const [formData, setFormData] = useState({
-    id: '',
-    nombre: '',
-    categoria: '',
-    precio: '',
-    img: ''
-  });
-
-  const [errores, setErrores] = useState({});
-
-  // Cargar datos si es modo Edición
-  useEffect(() => {
-    if (id) {
-      const prodEncontrado = productos.find((p) => p.id === id);
-      if (prodEncontrado) {
-        setFormData({
+  // En modo edición, los datos del producto se cargan directamente al
+  // crear el estado (lazy initialization), sin necesidad de un efecto
+  // que llame a setState.
+  const [formData, setFormData] = useState(() => {
+    const prodEncontrado = id ? productos.find((p) => p.id === id) : undefined;
+    return prodEncontrado
+      ? {
           id: prodEncontrado.id,
           nombre: prodEncontrado.nombre,
           categoria: prodEncontrado.categoria,
           precio: prodEncontrado.precio,
           img: prodEncontrado.img
-        });
-      } else {
-        alert('Producto no encontrado');
-        navigate('/admin');
-      }
+        }
+      : { id: '', nombre: '', categoria: '', precio: '', img: '' };
+  });
+
+  const [errores, setErrores] = useState({});
+
+  // Si el producto a editar no existe, avisamos y volvemos al panel
+  useEffect(() => {
+    if (id && !productos.some((p) => p.id === id)) {
+      alert('Producto no encontrado');
+      navigate('/admin');
     }
   }, [id, productos, navigate]);
 

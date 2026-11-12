@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useCart } from '../Context/CartContext';
+import { useCart } from '../Context/useCart';
 
 export default function Carrito() {
   const { carrito, cambiarCantidad, vaciarCarrito } = useCart();
