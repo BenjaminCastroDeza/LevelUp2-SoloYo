@@ -55,25 +55,63 @@ export default function Home() {
             ) : (
               productosFiltrados.map((prod) => (
                 <div className="col" key={prod.id}>
-                  <article className="card h-100 p-3 card-gamer d-flex flex-column justify-content-between">
-                    <img 
-                      className="foto-producto card-img-top rounded mb-3" 
-                      src={prod.img} 
-                      alt={prod.nombre} 
-                    />
+                  <article className="card h-100 p-3 card-gamer card-product-premium d-flex flex-column justify-content-between">
                     <div>
-                      <h3 className="h6 text-white mb-2">{prod.nombre}</h3>
-                      <p className="fs-5 fw-bold text-info mb-3">
-                        ${prod.precio.toLocaleString('es-CL')} CLP
-                      </p>
+                      {/* Contenedor de imagen con zoom suave al hover */}
+                      <div className="card-img-zoom-wrapper mb-3">
+                        <img 
+                          className="foto-producto rounded" 
+                          src={prod.img} 
+                          alt={prod.nombre} 
+                          loading="lazy"
+                        />
+                      </div>
+
+                      {/* Título del producto */}
+                      <h3 className="h6 text-white fw-bold mb-1 text-truncate" title={prod.nombre}>
+                        {prod.nombre}
+                      </h3>
+
+                      {/* Detalles compactos debajo del título */}
+                      <div className="d-flex align-items-center justify-content-between gap-2 mb-2 pb-1 border-bottom border-secondary border-opacity-25">
+                        <span className="badge bg-secondary bg-opacity-25 text-info small border border-secondary border-opacity-50">
+                          {prod.categoria}
+                        </span>
+                        <span className="text-secondary small font-monospace">
+                          SKU: {prod.id}
+                        </span>
+                      </div>
+
+                      {/* Estado de stock y garantía */}
+                      <div className="d-flex align-items-center justify-content-between small text-secondary mb-3">
+                        <span className="text-success d-flex align-items-center gap-1">
+                          <i className="bi bi-check2-circle"></i> En stock
+                        </span>
+                        <span className="d-flex align-items-center gap-1 opacity-75">
+                          <i className="bi bi-shield-check"></i> Garantía 12m
+                        </span>
+                      </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => agregarAlCarrito(prod)}
-                      className="btn btn-outline-primary w-100 fw-bold"
-                    >
-                      <i className="bi bi-cart-plus me-1"></i> Agregar
-                    </button>
+
+                    <div>
+                      {/* Precio destacado */}
+                      <div className="d-flex align-items-baseline justify-content-between mb-3">
+                        <span className="text-secondary small">Precio:</span>
+                        <span className="fs-5 fw-bold" style={{ color: 'var(--color-accent)' }}>
+                          ${prod.precio.toLocaleString('es-CL')} CLP
+                        </span>
+                      </div>
+
+                      {/* Botón Agregar con color distintivo y contraste en hover */}
+                      <button
+                        type="button"
+                        onClick={() => agregarAlCarrito(prod)}
+                        className="btn btn-add-cart w-100 fw-bold"
+                        aria-label={`Agregar ${prod.nombre} al carrito`}
+                      >
+                        <i className="bi bi-cart-plus me-1"></i> Agregar
+                      </button>
+                    </div>
                   </article>
                 </div>
               ))
