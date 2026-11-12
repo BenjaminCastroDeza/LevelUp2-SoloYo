@@ -25,7 +25,7 @@ describe('Navbar - Sesión', () => {
     expect(screen.queryByRole('button', { name: /Cerrar sesión/ })).not.toBeInTheDocument()
   })
 
-  it('muestra el botón de usuario con el primer nombre del usuario cuando está logueado', () => {
+  it('muestra el botón de perfil con el primer nombre del usuario cuando está logueado', () => {
     renderNavbar({ currentUser: { nombre: 'Benjamin Castro' } })
 
     expect(
@@ -42,7 +42,7 @@ describe('Navbar - Sesión', () => {
     ).toBeInTheDocument()
   })
 
-  it('al pulsar el botón de usuario abre el menú con Editar perfil y Cerrar sesión, y ejecuta onLogout', () => {
+  it('al pulsar el botón de perfil abre el menú con Perfil, Admin y Cerrar sesión, y ejecuta onLogout', () => {
     const onLogout = renderNavbar({
       currentUser: { nombre: 'Ana Pérez' },
       onLogout: vi.fn(),
@@ -51,7 +51,8 @@ describe('Navbar - Sesión', () => {
     const userBtn = screen.getByRole('button', { name: /Ana/i })
     fireEvent.click(userBtn)
 
-    expect(screen.getByRole('menuitem', { name: /Editar perfil/i })).toBeInTheDocument()
+    expect(screen.getByRole('menuitem', { name: /Perfil/i })).toBeInTheDocument()
+    expect(screen.getByRole('menuitem', { name: /Admin/i })).toBeInTheDocument()
     const logoutBtn = screen.getByRole('menuitem', { name: /Cerrar sesión/i })
     expect(logoutBtn).toBeInTheDocument()
 
@@ -60,17 +61,16 @@ describe('Navbar - Sesión', () => {
   })
 })
 
-describe('Navbar - Contenido general', () => {
-  it('muestra los enlaces principales (Inicio, Productos, Admin, Carrito)', () => {
+describe('Navbar - Contenido general y compacto', () => {
+  it('muestra los enlaces principales (Inicio, Productos, Carrito)', () => {
     renderNavbar()
 
-    expect(screen.getByRole('link', { name: 'Inicio' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Productos/ })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Admin/ })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Cart \(/ })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Inicio/i })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Productos/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Carrito/i })).toBeInTheDocument()
   })
 
-  it('muestra la cantidad de productos del carrito', () => {
+  it('muestra la cantidad de productos del carrito sin paréntesis', () => {
     localStorage.setItem(
       'cart_items',
       JSON.stringify([
@@ -80,7 +80,10 @@ describe('Navbar - Contenido general', () => {
     )
     renderNavbar()
 
-    expect(document.getElementById('cart-count')).toHaveTextContent('3')
+    const cartCount = document.getElementById('cart-count')
+    expect(cartCount).toHaveTextContent('3')
+    expect(cartCount.textContent).not.toContain('(')
+    expect(cartCount.textContent).not.toContain(')')
   })
 
   it('muestra 0 en el contador cuando el carrito está vacío', () => {
@@ -96,7 +99,7 @@ describe('Navbar - Contenido general', () => {
     )
     renderNavbar()
 
-    const cartBtn = screen.getByRole('button', { name: /Cart \(/ })
+    const cartBtn = screen.getByRole('button', { name: /Carrito/i })
     fireEvent.click(cartBtn)
 
     expect(screen.getByText(PRODUCTOS[0].nombre)).toBeInTheDocument()
@@ -110,7 +113,7 @@ describe('Navbar - Contenido general', () => {
   it('muestra mensaje de carrito vacío en el desplegable cuando no hay artículos', () => {
     renderNavbar()
 
-    const cartBtn = screen.getByRole('button', { name: /Cart \(/ })
+    const cartBtn = screen.getByRole('button', { name: /Carrito/i })
     fireEvent.click(cartBtn)
 
     expect(screen.getByText(/Tu carrito está vacío/i)).toBeInTheDocument()
