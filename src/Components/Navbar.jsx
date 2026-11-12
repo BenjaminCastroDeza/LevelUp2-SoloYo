@@ -138,25 +138,6 @@ export default function Navbar({ currentUser, onLogout, theme: propTheme, onTogg
               <span className="d-none d-md-inline">Productos</span>
             </a>
 
-            {/* Alternar Modo Claro / Oscuro */}
-            <button
-              type="button"
-              id="theme-toggle-btn"
-              className="nav-action-btn"
-              onClick={handleToggleTheme}
-              aria-label={`Cambiar a modo ${currentTheme === 'dark' ? 'claro' : 'oscuro'}`}
-              title={`Cambiar a modo ${currentTheme === 'dark' ? 'claro' : 'oscuro'}`}
-            >
-              <i
-                className={`bi ${
-                  currentTheme === 'dark' ? 'bi-sun-fill text-warning' : 'bi-moon-stars-fill text-primary'
-                }`}
-              ></i>
-              <span className="d-none d-lg-inline">
-                {currentTheme === 'dark' ? 'Claro' : 'Oscuro'}
-              </span>
-            </button>
-
             {/* Perfil / Iniciar Sesión */}
             {currentUser ? (
               <div className="position-relative" ref={userRef}>
@@ -348,6 +329,22 @@ export default function Navbar({ currentUser, onLogout, theme: propTheme, onTogg
                 </div>
               )}
             </div>
+
+            {/* Alternar Modo Claro / Oscuro (Al final del Navbar, solo icono) */}
+            <button
+              type="button"
+              id="theme-toggle-btn"
+              className="nav-action-btn px-2 d-flex align-items-center justify-content-center"
+              onClick={handleToggleTheme}
+              aria-label={`Cambiar a modo ${currentTheme === 'dark' ? 'claro' : 'oscuro'}`}
+              title={`Cambiar a modo ${currentTheme === 'dark' ? 'claro' : 'oscuro'}`}
+            >
+              <i
+                className={`bi ${
+                  currentTheme === 'dark' ? 'bi-sun-fill text-warning' : 'bi-moon-stars-fill text-primary'
+                } fs-5`}
+              ></i>
+            </button>
           </nav>
         </div>
       </div>
