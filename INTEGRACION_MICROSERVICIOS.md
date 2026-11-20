@@ -32,7 +32,7 @@ El sistema está dividido en **2 Microservicios Backend** independientes en Spri
 
 ## 2. Microservicio 1: Auth & Usuarios (`levelup-MSlogin`)
 
-- **Directorio en repositorio:** `backend/levelup-MSlogin` (o en escritorio: `C:\Users\PC\Desktop\levelup-MSlogin\levelup-MSlogin`)
+- **Directorio:** `C:\Users\PC\Desktop\levelup-MSlogin\levelup-MSlogin`
 - **Puerto:** `8081`
 - **Base de Datos:** MySQL `levelup_auth_db`
 - **Documentación Swagger / OpenAPI:** [http://localhost:8081/swagger-ui.html](http://localhost:8081/swagger-ui.html)
@@ -63,7 +63,7 @@ El sistema está dividido en **2 Microservicios Backend** independientes en Spri
 
 ## 3. Microservicio 2: Tienda (`levelup-MSproductos`)
 
-- **Directorio en repositorio:** `backend/levelup-MSproductos` (o en escritorio: `C:\Users\PC\Desktop\levelup-MSproductos\levelup-MSproductos`)
+- **Directorio:** `C:\Users\PC\Desktop\levelup-MSproductos\levelup-MSproductos`
 - **Puerto:** `8082`
 - **Base de Datos:** MySQL `levelup_tienda_db`
 - **Documentación Swagger / OpenAPI:** [http://localhost:8082/swagger-ui.html](http://localhost:8082/swagger-ui.html)
@@ -112,8 +112,7 @@ $env:Path = "$env:JAVA_HOME\bin;" + $env:Path
 
 ### Iniciar Microservicio 1 (MS-Login: 8081):
 ```powershell
-cd backend/levelup-MSlogin
-# o si está en el escritorio: cd "C:\Users\PC\Desktop\levelup-MSlogin\levelup-MSlogin"
+cd "C:\Users\PC\Desktop\levelup-MSlogin\levelup-MSlogin"
 .\mvnw.cmd spring-boot:run
 ```
 
@@ -122,8 +121,7 @@ Abre una segunda terminal de PowerShell:
 ```powershell
 $env:JAVA_HOME = "C:\Program Files\Java\jdk-17"
 $env:Path = "$env:JAVA_HOME\bin;" + $env:Path
-cd backend/levelup-MSproductos
-# o si está en el escritorio: cd "C:\Users\PC\Desktop\levelup-MSproductos\levelup-MSproductos"
+cd "C:\Users\PC\Desktop\levelup-MSproductos\levelup-MSproductos"
 .\mvnw.cmd spring-boot:run
 ```
 
