@@ -76,6 +76,8 @@ export default function Navbar({ currentUser, onLogout, theme: propTheme, onTogg
     ? currentUser.nombre.split(' ')[0]
     : 'Usuario';
 
+  const esCliente = currentUser && (currentUser.rol === 'ROLE_CLIENTE' || currentUser.rol === 'CLIENTE');
+
   const subtotalCarrito = carrito.reduce(
     (acc, item) => acc + (item.precio || 0) * (item.cantidad || 1),
     0
@@ -177,9 +179,9 @@ export default function Navbar({ currentUser, onLogout, theme: propTheme, onTogg
                       )}
                     </div>
 
-                    {/* Perfil / Editar Perfil */}
+                    {/* Perfil */}
                     <Link
-                      to="/registro"
+                      to="/perfil"
                       className="dropdown-item dropdown-item-custom d-flex align-items-center gap-2 py-2 px-3"
                       role="menuitem"
                       onClick={() => setUserOpen(false)}
@@ -188,16 +190,18 @@ export default function Navbar({ currentUser, onLogout, theme: propTheme, onTogg
                       <span>Perfil</span>
                     </Link>
 
-                    {/* Botón ADMIN dentro del menú de Perfil */}
-                    <Link
-                      to="/admin"
-                      className="dropdown-item dropdown-item-custom d-flex align-items-center gap-2 py-2 px-3 text-warning"
-                      role="menuitem"
-                      onClick={() => setUserOpen(false)}
-                    >
-                      <i className="bi bi-shield-lock"></i>
-                      <span>Admin</span>
-                    </Link>
+                    {/* Botón ADMIN dentro del menú de Perfil (Oculto para usuarios clientes) */}
+                    {!esCliente && (
+                      <Link
+                        to="/admin"
+                        className="dropdown-item dropdown-item-custom d-flex align-items-center gap-2 py-2 px-3 text-warning"
+                        role="menuitem"
+                        onClick={() => setUserOpen(false)}
+                      >
+                        <i className="bi bi-shield-lock"></i>
+                        <span>Admin</span>
+                      </Link>
+                    )}
 
                     <hr className="dropdown-divider border-secondary border-opacity-50 my-1" />
 

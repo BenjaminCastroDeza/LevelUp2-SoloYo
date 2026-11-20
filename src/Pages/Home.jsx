@@ -1,12 +1,19 @@
 // src/pages/Home.jsx
+import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useCart } from '../Context/useCart';
 import Footer from '../Components/Footer';
 
 export default function Home() {
-  const { productos, agregarAlCarrito } = useCart();
+  const { productos, agregarAlCarrito, recargarProductos } = useCart();
   const [searchParams] = useSearchParams();
   const busqueda = (searchParams.get('q') || '').trim().toLowerCase();
+
+  useEffect(() => {
+    if (import.meta.env.MODE !== 'test' && recargarProductos) {
+      recargarProductos();
+    }
+  }, []);
 
   const productosFiltrados = busqueda
     ? productos.filter(

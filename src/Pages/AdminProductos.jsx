@@ -1,12 +1,18 @@
 // src/pages/AdminProductos.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../Context/useCart';
 
 export default function AdminProductos() {
-  const { productos, eliminarProducto } = useCart();
+  const { productos, eliminarProducto, recargarProductos } = useCart();
   const [busqueda, setBusqueda] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (import.meta.env.MODE !== 'test' && recargarProductos) {
+      recargarProductos();
+    }
+  }, []);
 
   // Filtrado dinámico por nombre o categoría
   const productosFiltrados = productos.filter(

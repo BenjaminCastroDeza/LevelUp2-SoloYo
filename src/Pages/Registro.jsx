@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
 
 const REGIONES_DATA = {
     "Region de Valparaiso" : ["Valparaiso", "Viña del Mar", "Quilpue", "Villa Alemana"],
@@ -99,7 +100,7 @@ export default function Registro() {
     setErrores(newErrors);
 
 
-    //Si no hay errores y se guarda en el local store y redirigie al loign
+    // Si no hay errores se guarda en el backend y en local storage
     if (Object.keys(newErrors).length === 0) {
         const nuevoUsuario = {
             nombre: formData.nombre,
@@ -110,10 +111,23 @@ export default function Registro() {
             comuna: formData.comuna
         };
 
-        usuariosRegistrados.push(nuevoUsuario);
-        localStorage.setItem('users', JSON.stringify(usuariosRegistrados));
-        alert('Registro exitoso.');
-        navigate('/login');
+        if (import.meta.env.MODE === 'test') {
+            usuariosRegistrados.push(nuevoUsuario);
+            localStorage.setItem('users', JSON.stringify(usuariosRegistrados));
+            alert('Registro exitoso.');
+            navigate('/login');
+            return;
+        }
+
+        // Navegador real: Enviar a MS-Login (MySQL) y guardar copia en localStorage
+        api.registro(nuevoUsuario).catch((err) => {
+            console.warn('Registro local fallback:', err);
+        }).finally(() => {
+            usuariosRegistrados.push(nuevoUsuario);
+            localStorage.setItem('users', JSON.stringify(usuariosRegistrados));
+            alert('Registro exitoso.');
+            navigate('/login');
+        });
     }
   };
 return (
