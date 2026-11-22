@@ -96,32 +96,23 @@ export default function Login({setCurrentUser}) {
                 return;
             }
         } catch (err) {
-            // Si el backend responde error o no está disponible, intentar con localStorage
-            const usuarios = JSON.parse(localStorage.getItem('users')) || [];
-            const localUser = usuarios.find(
-                (u) => u.correo.toLowerCase() === correoLimpio.toLowerCase()
-            );
-
-            if (localUser) {
-                if (localUser.contrasena !== contrasena) {
-                    setErrorContrasena('La contraseña es incorrecta.');
-                } else {
-                    localStorage.setItem('currentUser', JSON.stringify(localUser));
-                    setCurrentUser(localUser);
-                    restaurarCarritoUsuario(localUser);
-                    alert(`¡Bienvenido, ${localUser.nombre}! Has iniciado sesión correctamente.`);
-                    navigate('/');
-                }
-                return;
-            }
-
             const errorMsg = err.message || '';
-            if (errorMsg.includes('Correo o contraseña incorrectos') || errorMsg.includes('Credenciales')) {
+            if (
+                errorMsg.includes('Correo o contraseña incorrectos') ||
+                errorMsg.includes('Credenciales') ||
+                errorMsg.includes('Bad credentials')
+            ) {
                 setErrorContrasena('Correo o contraseña incorrectos.');
-            } else if (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
-                setErrorCorreo('No se pudo conectar con el microservicio de login (puerto 8081).');
+            } else if (
+                errorMsg.includes('Failed to fetch') ||
+                errorMsg.includes('NetworkError') ||
+                errorMsg.includes('Load failed') ||
+                errorMsg.includes('conexión') ||
+                errorMsg.includes('conectar')
+            ) {
+                setErrorCorreo('No se pudo conectar con el microservicio de login (puerto 8081). Verifica que el backend esté activo.');
             } else {
-                setErrorCorreo('El correo no está registrado.');
+                setErrorCorreo(errorMsg || 'Error al iniciar sesión contra el backend.');
             }
         }
     };

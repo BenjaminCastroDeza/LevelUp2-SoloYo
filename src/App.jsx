@@ -39,41 +39,6 @@ export default function App() {
     } catch {}
   }, [theme]);
 
-  // Semilla de usuarios por defecto en el navegador para pruebas locales
-  useEffect(() => {
-    if (import.meta.env.MODE !== 'test') {
-      try {
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        const hasAdmin = users.some(
-          (u) => u.correo.toLowerCase() === 'admin@levelup.cl'
-        );
-        if (!hasAdmin) {
-          users.push({
-            id: 1,
-            nombre: 'Administrador LevelUp',
-            correo: 'admin@levelup.cl',
-            contrasena: 'Admin123!',
-            rol: 'ROLE_ADMIN',
-            telefono: '912345678',
-            region: 'Region Metropolitana',
-            comuna: 'Santiago'
-          });
-          users.push({
-            id: 2,
-            nombre: 'Cliente LevelUp',
-            correo: 'cliente@levelup.cl',
-            contrasena: 'User123!',
-            rol: 'ROLE_CLIENTE',
-            telefono: '912345678',
-            region: 'Region Metropolitana',
-            comuna: 'Santiago'
-          });
-          localStorage.setItem('users', JSON.stringify(users));
-        }
-      } catch {}
-    }
-  }, []);
-
   const handleToggleTheme = () => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };

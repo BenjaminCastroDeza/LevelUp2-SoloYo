@@ -3,8 +3,8 @@
 // 1. Microservicio Auth & Usuarios: http://localhost:8081/api
 // 2. Microservicio Tienda (Productos y Pedidos): http://localhost:8082/api
 
-export const AUTH_API_URL = 'http://localhost:8081/api';
-export const TIENDA_API_URL = 'http://localhost:8082/api';
+export const AUTH_API_URL = import.meta.env.VITE_AUTH_API_URL || 'http://localhost:8081/api';
+export const TIENDA_API_URL = import.meta.env.VITE_TIENDA_API_URL || 'http://localhost:8082/api';
 
 /**
  * Retorna el encabezado con el token JWT si está disponible
