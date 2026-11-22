@@ -11,6 +11,20 @@ export default function Login({setCurrentUser}) {
     const [errorCorreo, setErrorCorreo] = useState('');
     const [errorContrasena, setErrorContrasena] = useState('');
 
+    const restaurarCarritoUsuario = (usuario) => {
+        try {
+            const userKey = `user_cart_${(usuario.correo || usuario.id).toLowerCase()}`;
+            const savedCart = localStorage.getItem(userKey);
+            if (savedCart) {
+                const parsed = JSON.parse(savedCart);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    localStorage.setItem('cart_items', savedCart);
+                }
+            }
+        } catch {}
+        window.dispatchEvent(new CustomEvent('levelup:login', { detail: usuario }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -57,6 +71,7 @@ export default function Login({setCurrentUser}) {
 
             localStorage.setItem('currentUser', JSON.stringify(usuarioEncontrado));
             setCurrentUser(usuarioEncontrado);
+            restaurarCarritoUsuario(usuarioEncontrado);
             alert(`¡Bienvenido, ${usuarioEncontrado.nombre}! Has iniciado sesión correctamente.`);
             navigate('/');
             return;
@@ -75,6 +90,7 @@ export default function Login({setCurrentUser}) {
                 };
                 localStorage.setItem('currentUser', JSON.stringify(usuarioActivo));
                 setCurrentUser(usuarioActivo);
+                restaurarCarritoUsuario(usuarioActivo);
                 alert(`¡Bienvenido, ${usuarioActivo.nombre}! Has iniciado sesión correctamente.`);
                 navigate('/');
                 return;
@@ -92,6 +108,7 @@ export default function Login({setCurrentUser}) {
                 } else {
                     localStorage.setItem('currentUser', JSON.stringify(localUser));
                     setCurrentUser(localUser);
+                    restaurarCarritoUsuario(localUser);
                     alert(`¡Bienvenido, ${localUser.nombre}! Has iniciado sesión correctamente.`);
                     navigate('/');
                 }

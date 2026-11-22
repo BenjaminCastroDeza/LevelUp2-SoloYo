@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { PRODUCTOS as PRODUCTOS_INICIALES } from '../Data/Productos';
 import { CartContext } from './useCart';
 import { api } from '../services/api';
@@ -65,30 +65,87 @@ export const CartProvider = ({ children }) => {
     }
   }, []);
 
-  // Estado del carrito
+  // Estado del carrito con persistencia por usuario
   const [carrito, setCarrito] = useState(() => {
     try {
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      if (currentUser && (currentUser.correo || currentUser.id)) {
+        const userKey = `user_cart_${(currentUser.correo || currentUser.id).toLowerCase()}`;
+        const userSaved = localStorage.getItem(userKey);
+        if (userSaved) {
+          const parsed = JSON.parse(userSaved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            localStorage.setItem('cart_items', userSaved);
+            return parsed;
+          }
+        }
+      }
       return JSON.parse(localStorage.getItem('cart_items')) || [];
     } catch {
       return [];
     }
   });
 
-  // Guarda en el localStorage cada vez que el carrito cambia
+  const isLoggingOutRef = useRef(false);
+
+  // Guarda en el localStorage cada vez que el carrito cambia (tanto en general como por usuario)
   useEffect(() => {
+    if (isLoggingOutRef.current) return;
     localStorage.setItem('cart_items', JSON.stringify(carrito));
+    try {
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      if (currentUser && (currentUser.correo || currentUser.id)) {
+        const userKey = `user_cart_${(currentUser.correo || currentUser.id).toLowerCase()}`;
+        localStorage.setItem(userKey, JSON.stringify(carrito));
+      }
+    } catch {}
   }, [carrito]);
 
-  // Vaciar carrito cuando el usuario cierra sesión
+  // Manejar eventos de login y logout para restaurar y guardar el carrito del usuario
   useEffect(() => {
-    const handleLogoutEvent = () => {
-      setCarrito([]);
+    const handleLoginEvent = (e) => {
+      isLoggingOutRef.current = false;
+      try {
+        const user = e?.detail || JSON.parse(localStorage.getItem('currentUser'));
+        if (user && (user.correo || user.id)) {
+          const userKey = `user_cart_${(user.correo || user.id).toLowerCase()}`;
+          const saved = localStorage.getItem(userKey);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setCarrito(parsed);
+              localStorage.setItem('cart_items', saved);
+              return;
+            }
+          }
+        }
+      } catch {}
     };
+
+    const handleLogoutEvent = () => {
+      isLoggingOutRef.current = true;
+      try {
+        const user = JSON.parse(localStorage.getItem('currentUser'));
+        if (user && (user.correo || user.id)) {
+          const userKey = `user_cart_${(user.correo || user.id).toLowerCase()}`;
+          if (carrito && carrito.length > 0) {
+            localStorage.setItem(userKey, JSON.stringify(carrito));
+          }
+        }
+      } catch {}
+      setCarrito([]);
+      setTimeout(() => {
+        isLoggingOutRef.current = false;
+      }, 50);
+    };
+
+    window.addEventListener('levelup:login', handleLoginEvent);
     window.addEventListener('levelup:logout', handleLogoutEvent);
     return () => {
+      window.removeEventListener('levelup:login', handleLoginEvent);
       window.removeEventListener('levelup:logout', handleLogoutEvent);
     };
-  }, []);
+  }, [carrito]);
 
   // --- FUNCIONES CRUD CON PERSISTENCIA EN BD ---
   const crearProducto = async (nuevoProd) => {

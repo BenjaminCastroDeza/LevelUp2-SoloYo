@@ -80,12 +80,25 @@ export default function App() {
 
   const handleLogout = () => {
     if (confirm('¿Deseas cerrar sesión?')) {
+      try {
+        const user = currentUser || JSON.parse(localStorage.getItem('currentUser'));
+        if (user && (user.correo || user.id)) {
+          const userKey = `user_cart_${(user.correo || user.id).toLowerCase()}`;
+          const currentCart = localStorage.getItem('cart_items');
+          if (currentCart) {
+            localStorage.setItem(userKey, currentCart);
+          }
+        }
+      } catch {}
+
       localStorage.removeItem('currentUser');
       localStorage.removeItem('token');
       localStorage.removeItem('cart_items');
       window.dispatchEvent(new Event('levelup:logout'));
       setCurrentUser(null);
-      window.location.reload();
+      if (typeof window !== 'undefined' && window.location && window.location.reload) {
+        window.location.reload();
+      }
     }
   };
 

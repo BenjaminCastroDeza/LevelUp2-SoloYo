@@ -270,4 +270,30 @@ describe('CartContext - Carrito de compras', () => {
     expect(screen.getByTestId('item-AC001')).toHaveTextContent('4')
     expect(screen.getByTestId('total')).toHaveTextContent('4')
   })
+
+  it('guarda el carrito asociado al usuario y lo restaura tras cerrar y volver a iniciar sesión', () => {
+    const usuario = { id: 10, nombre: 'Gamer Pro', correo: 'gamer@levelup.cl' }
+    localStorage.setItem('currentUser', JSON.stringify(usuario))
+
+    renderProbe()
+    click('agregar-catan')
+
+    // Se guardó en cart_items y en user_cart_gamer@levelup.cl
+    expect(localStorage.getItem('cart_items')).toContain('JM001')
+    expect(localStorage.getItem('user_cart_gamer@levelup.cl')).toContain('JM001')
+
+    // Simula logout (se dispara levelup:logout)
+    fireEvent(window, new Event('levelup:logout'))
+    expect(screen.getByTestId('total')).toHaveTextContent('0')
+
+    // Simula login de nuevo con el mismo usuario
+    fireEvent(
+      window,
+      new CustomEvent('levelup:login', { detail: usuario })
+    )
+
+    // El carrito se restauró automáticamente
+    expect(screen.getByTestId('item-JM001')).toHaveTextContent('1')
+    expect(screen.getByTestId('total')).toHaveTextContent('1')
+  })
 })
