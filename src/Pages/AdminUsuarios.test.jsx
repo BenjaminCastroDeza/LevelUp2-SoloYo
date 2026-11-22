@@ -11,7 +11,7 @@ const MOCK_USUARIOS = [
     nombre: 'Administrador LevelUp',
     correo: 'admin@levelup.cl',
     telefono: '912345678',
-    region: 'Región Metropolitana',
+    region: 'Region Metropolitana',
     comuna: 'Santiago',
     rol: 'ROLE_ADMIN'
   },
@@ -20,7 +20,7 @@ const MOCK_USUARIOS = [
     nombre: 'Cliente Juan',
     correo: 'juan@levelup.cl',
     telefono: '987654321',
-    region: 'Valparaíso',
+    region: 'Region de Valparaiso',
     comuna: 'Viña del Mar',
     rol: 'ROLE_CLIENTE'
   },
@@ -29,8 +29,8 @@ const MOCK_USUARIOS = [
     nombre: 'Carlos Gamer',
     correo: 'carlos@levelup.cl',
     telefono: '955555555',
-    region: 'Biobío',
-    comuna: 'Concepción',
+    region: 'Region del bio Bio',
+    comuna: 'Concepcion',
     rol: 'ROLE_CLIENTE'
   }
 ];
@@ -77,19 +77,24 @@ describe('Página AdminUsuarios - Gestión de Usuarios', () => {
     expect(screen.getByText('Clientes Registrados')).toBeInTheDocument();
   });
 
-  it('filtra usuarios por texto de búsqueda en tiempo real', async () => {
+  it('filtra usuarios exclusivamente por nombre en tiempo real', async () => {
     renderComponent();
 
     await waitFor(() => {
       expect(screen.getByText('juan@levelup.cl')).toBeInTheDocument();
     });
 
-    const searchInput = screen.getByLabelText(/Buscar usuarios/i);
-    fireEvent.change(searchInput, { target: { value: 'Viña' } });
+    const searchInput = screen.getByLabelText(/Buscar usuario por nombre/i);
+    fireEvent.change(searchInput, { target: { value: 'Juan' } });
 
     expect(screen.getByText('juan@levelup.cl')).toBeInTheDocument();
     expect(screen.queryByText('carlos@levelup.cl')).not.toBeInTheDocument();
     expect(screen.queryByText('admin@levelup.cl')).not.toBeInTheDocument();
+
+    // Búsqueda por comuna o correo no debe filtrar positivamente al ser solo por nombre
+    fireEvent.change(searchInput, { target: { value: 'Concepcion' } });
+    expect(screen.queryByText('carlos@levelup.cl')).not.toBeInTheDocument();
+    expect(screen.getByText(/No se encontraron usuarios con ese nombre/i)).toBeInTheDocument();
   });
 
   it('filtra usuarios por rol seleccionado', async () => {
@@ -107,7 +112,7 @@ describe('Página AdminUsuarios - Gestión de Usuarios', () => {
     expect(screen.queryByText('carlos@levelup.cl')).not.toBeInTheDocument();
   });
 
-  it('abre el modal de creación y permite registrar un nuevo usuario', async () => {
+  it('abre el modal de creación y permite registrar un nuevo usuario con regiones oficiales', async () => {
     renderComponent();
 
     await waitFor(() => {
@@ -125,6 +130,13 @@ describe('Página AdminUsuarios - Gestión de Usuarios', () => {
     fireEvent.change(inputNombre, { target: { value: 'Mario Bros' } });
     fireEvent.change(inputCorreo, { target: { value: 'mario@levelup.cl' } });
 
+    // Verifica que solo existan las 3 regiones del proyecto en el select
+    const selectRegion = screen.getAllByRole('combobox').find((cb) =>
+      cb.innerHTML.includes('Region Metropolitana')
+    );
+    expect(selectRegion).toBeInTheDocument();
+    expect(selectRegion.children.length).toBe(3);
+
     const btnGuardar = screen.getByRole('button', { name: /Guardar en BD/i });
     fireEvent.click(btnGuardar);
 
@@ -132,7 +144,8 @@ describe('Página AdminUsuarios - Gestión de Usuarios', () => {
       expect(userService.create).toHaveBeenCalledWith(
         expect.objectContaining({
           nombre: 'Mario Bros',
-          correo: 'mario@levelup.cl'
+          correo: 'mario@levelup.cl',
+          region: 'Region Metropolitana'
         })
       );
     });

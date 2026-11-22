@@ -3,24 +3,28 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { userService } from '../services/userService';
 
-const REGIONES_CHILE = [
-  'Arica y Parinacota',
-  'Tarapacá',
-  'Antofagasta',
-  'Atacama',
-  'Coquimbo',
-  'Valparaíso',
-  'Región Metropolitana',
-  "O'Higgins",
-  'Maule',
-  'Ñuble',
-  'Biobío',
-  'Araucanía',
-  'Los Ríos',
-  'Los Lagos',
-  'Aysén',
-  'Magallanes'
-];
+const REGIONES_DATA = {
+  "Region de Valparaiso": ["Valparaiso", "Viña del Mar", "Quilpue", "Villa Alemana"],
+  "Region Metropolitana": ["Santiago", "Providencia", "Las Condes", "Ñuñoa"],
+  "Region del bio Bio": ["Concepcion", "Talcahuano", "San Pedro de la Paz"]
+};
+
+// Normalizar texto de región para coincidir con las llaves de REGIONES_DATA
+const normalizarRegion = (reg) => {
+  if (!reg) return 'Region Metropolitana';
+  const regLimpio = reg
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+  const encontrada = Object.keys(REGIONES_DATA).find(
+    (k) =>
+      k
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase() === regLimpio
+  );
+  return encontrada || 'Region Metropolitana';
+};
 
 export default function AdminUsuarios({ currentUser }) {
   const [usuarios, setUsuarios] = useState([]);
@@ -35,21 +39,22 @@ export default function AdminUsuarios({ currentUser }) {
   const [usuarioAEditar, setUsuarioAEditar] = useState(null);
   const [usuarioAEliminar, setUsuarioAEliminar] = useState(null);
 
-  // Formularios
+  // Formulario inicial con región por defecto del proyecto
+  const regionInicial = 'Region Metropolitana';
   const formInicial = {
     nombre: '',
     correo: '',
     contrasena: '',
     telefono: '',
-    region: 'Región Metropolitana',
-    comuna: '',
+    region: regionInicial,
+    comuna: REGIONES_DATA[regionInicial][0],
     rol: 'ROLE_CLIENTE'
   };
   const [formCrear, setFormCrear] = useState(formInicial);
   const [formEditar, setFormEditar] = useState(formInicial);
   const [guardando, setGuardando] = useState(false);
 
-  // Cargar usuarios
+  // Cargar usuarios desde el microservicio
   const cargarUsuarios = async () => {
     setCargando(true);
     try {
@@ -71,15 +76,11 @@ export default function AdminUsuarios({ currentUser }) {
     setTimeout(() => setAlerta(null), 5000);
   };
 
-  // Filtrado de usuarios
+  // Filtrado de usuarios: EXCLUSIVAMENTE POR NOMBRE (y por rol si aplica)
   const usuariosFiltrados = usuarios.filter((u) => {
-    const coincideTexto =
-      String(u.id).toLowerCase().includes(busqueda.toLowerCase()) ||
-      (u.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) ||
-      (u.correo || '').toLowerCase().includes(busqueda.toLowerCase()) ||
-      (u.telefono || '').toLowerCase().includes(busqueda.toLowerCase()) ||
-      (u.region || '').toLowerCase().includes(busqueda.toLowerCase()) ||
-      (u.comuna || '').toLowerCase().includes(busqueda.toLowerCase());
+    const coincideNombre = (u.nombre || '')
+      .toLowerCase()
+      .includes(busqueda.toLowerCase().trim());
 
     const coincideRol =
       filtroRol === 'TODOS' ||
@@ -87,7 +88,7 @@ export default function AdminUsuarios({ currentUser }) {
       (filtroRol === 'ROLE_ADMIN' && (u.rol === 'ROLE_ADMIN' || u.rol === 'ADMIN')) ||
       (filtroRol === 'ROLE_CLIENTE' && (u.rol === 'ROLE_CLIENTE' || u.rol === 'CLIENTE'));
 
-    return coincideTexto && coincideRol;
+    return coincideNombre && coincideRol;
   });
 
   // Métricas
@@ -98,6 +99,28 @@ export default function AdminUsuarios({ currentUser }) {
   const totalClientes = usuarios.filter(
     (u) => u.rol === 'ROLE_CLIENTE' || u.rol === 'CLIENTE'
   ).length;
+
+  // Manejo de cambio de región en Crear Usuario
+  const handleRegionCrearChange = (e) => {
+    const nuevaRegion = e.target.value;
+    const comunas = REGIONES_DATA[nuevaRegion] || [];
+    setFormCrear((prev) => ({
+      ...prev,
+      region: nuevaRegion,
+      comuna: comunas[0] || ''
+    }));
+  };
+
+  // Manejo de cambio de región en Editar Usuario
+  const handleRegionEditarChange = (e) => {
+    const nuevaRegion = e.target.value;
+    const comunas = REGIONES_DATA[nuevaRegion] || [];
+    setFormEditar((prev) => ({
+      ...prev,
+      region: nuevaRegion,
+      comuna: comunas[0] || ''
+    }));
+  };
 
   // Cambiar rol rápido
   const handleCambiarRolRapido = async (usuario) => {
@@ -112,7 +135,12 @@ export default function AdminUsuarios({ currentUser }) {
 
     try {
       await userService.changeRole(usuario.id, nuevoRol);
-      mostrarAlerta('success', `Rol de ${usuario.nombre || usuario.correo} actualizado a ${nuevoRol === 'ROLE_ADMIN' ? 'Administrador' : 'Cliente'}`);
+      mostrarAlerta(
+        'success',
+        `Rol de ${usuario.nombre || usuario.correo} actualizado a ${
+          nuevoRol === 'ROLE_ADMIN' ? 'Administrador' : 'Cliente'
+        }`
+      );
       await cargarUsuarios();
     } catch (err) {
       mostrarAlerta('danger', 'Error al cambiar rol: ' + err.message);
@@ -144,13 +172,19 @@ export default function AdminUsuarios({ currentUser }) {
   // Abrir modal edición
   const handleAbrirEditar = (usuario) => {
     setUsuarioAEditar(usuario);
+    const regNorm = normalizarRegion(usuario.region);
+    const comunasValidas = REGIONES_DATA[regNorm] || [];
+    const com = comunasValidas.includes(usuario.comuna)
+      ? usuario.comuna
+      : comunasValidas[0] || '';
+
     setFormEditar({
       nombre: usuario.nombre || '',
       correo: usuario.correo || '',
       contrasena: '',
       telefono: usuario.telefono || '',
-      region: usuario.region || 'Región Metropolitana',
-      comuna: usuario.comuna || '',
+      region: regNorm,
+      comuna: com,
       rol: usuario.rol || 'ROLE_CLIENTE'
     });
     setModalEditarAbierto(true);
@@ -279,7 +313,7 @@ export default function AdminUsuarios({ currentUser }) {
         </div>
       </div>
 
-      {/* Contenedor Principal: Búsqueda y Tabla */}
+      {/* Contenedor Principal: Búsqueda por Nombre y Tabla */}
       <div className="card-gamer p-4 border border-secondary rounded-3">
         {/* Barra de Filtros */}
         <div className="row g-3 mb-4">
@@ -291,10 +325,10 @@ export default function AdminUsuarios({ currentUser }) {
               <input
                 type="text"
                 className="form-control"
-                placeholder="Buscar por ID, nombre, correo, teléfono o comuna..."
+                placeholder="Buscar usuario por nombre..."
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
-                aria-label="Buscar usuarios"
+                aria-label="Buscar usuario por nombre"
               />
             </div>
           </div>
@@ -342,7 +376,7 @@ export default function AdminUsuarios({ currentUser }) {
                 <tr>
                   <td colSpan="6" className="text-center py-5 text-secondary">
                     <i className="bi bi-people fs-1 d-block mb-2 opacity-50"></i>
-                    No se encontraron usuarios que coincidan con la búsqueda.
+                    No se encontraron usuarios con ese nombre.
                   </td>
                 </tr>
               ) : (
@@ -520,22 +554,24 @@ export default function AdminUsuarios({ currentUser }) {
                       <select
                         className="form-select bg-black text-white border-secondary"
                         value={formCrear.region}
-                        onChange={(e) => setFormCrear({ ...formCrear, region: e.target.value })}
+                        onChange={handleRegionCrearChange}
                       >
-                        {REGIONES_CHILE.map((reg) => (
+                        {Object.keys(REGIONES_DATA).map((reg) => (
                           <option key={reg} value={reg}>{reg}</option>
                         ))}
                       </select>
                     </div>
                     <div className="col-12 col-md-6">
                       <label className="form-label small text-secondary">Comuna</label>
-                      <input
-                        type="text"
-                        className="form-control bg-black text-white border-secondary"
-                        placeholder="Ej: Providencia"
+                      <select
+                        className="form-select bg-black text-white border-secondary"
                         value={formCrear.comuna}
                         onChange={(e) => setFormCrear({ ...formCrear, comuna: e.target.value })}
-                      />
+                      >
+                        {(REGIONES_DATA[formCrear.region] || []).map((com) => (
+                          <option key={com} value={com}>{com}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>
@@ -645,21 +681,24 @@ export default function AdminUsuarios({ currentUser }) {
                       <select
                         className="form-select bg-black text-white border-secondary"
                         value={formEditar.region}
-                        onChange={(e) => setFormEditar({ ...formEditar, region: e.target.value })}
+                        onChange={handleRegionEditarChange}
                       >
-                        {REGIONES_CHILE.map((reg) => (
+                        {Object.keys(REGIONES_DATA).map((reg) => (
                           <option key={reg} value={reg}>{reg}</option>
                         ))}
                       </select>
                     </div>
                     <div className="col-12 col-md-6">
                       <label className="form-label small text-secondary">Comuna</label>
-                      <input
-                        type="text"
-                        className="form-control bg-black text-white border-secondary"
+                      <select
+                        className="form-select bg-black text-white border-secondary"
                         value={formEditar.comuna}
                         onChange={(e) => setFormEditar({ ...formEditar, comuna: e.target.value })}
-                      />
+                      >
+                        {(REGIONES_DATA[formEditar.region] || []).map((com) => (
+                          <option key={com} value={com}>{com}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>
