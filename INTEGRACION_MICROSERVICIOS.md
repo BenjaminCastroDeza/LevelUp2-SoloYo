@@ -47,7 +47,10 @@ El sistema está dividido en **2 Microservicios Backend** independientes en Spri
 | `GET` | `/api/auth/validate`| Autenticado | Valida la vigencia y firma del token JWT. |
 | `GET` | `/api/usuarios` | `ROLE_ADMIN` | Lista todos los usuarios registrados en el sistema. |
 | `GET` | `/api/usuarios/{id}`| `ROLE_ADMIN` | Obtiene el detalle de un usuario por su ID. |
+| `POST`| `/api/usuarios` | `ROLE_ADMIN` | Crea un nuevo usuario en la base de datos (con rol y contraseña cifrada). |
+| `PUT` | `/api/usuarios/{id}`| `ROLE_ADMIN` | Actualiza datos de un usuario (nombre, teléfono, ubicación, rol). |
 | `PATCH`| `/api/usuarios/{id}/rol` | `ROLE_ADMIN` | Modifica el rol de un usuario (`ROLE_CLIENTE` / `ROLE_ADMIN`). |
+| `DELETE`| `/api/usuarios/{id}` | `ROLE_ADMIN` | Elimina permanentemente un usuario por su ID. |
 
 ### Cuentas Semilla por Defecto:
 - **Administrador:**
@@ -93,11 +96,13 @@ El sistema está dividido en **2 Microservicios Backend** independientes en Spri
 Los servicios de integración con los dos microservicios se encuentran centralizados en:
 - `src/services/api.js`: Cliente HTTP REST que apunta a los puertos `8081` (MS-Login) y `8082` (MS-Productos).
 - `src/services/authService.js`: Fachada para login, registro, logout, manejo de JWT en `localStorage` y verificación de roles.
+- `src/services/userService.js`: Fachada para operaciones CRUD de usuarios conectado a MS-Login con persistencia en MySQL.
 - `src/services/productService.js`: Fachada para operaciones CRUD de catálogo.
 - `src/Components/ProtectedRoute.jsx`: Componente de control de acceso para proteger rutas administrativas según el rol del usuario (`ROLE_ADMIN`).
+- `src/Pages/AdminUsuarios.jsx`: Vista completa de administración de usuarios (CRUD, asignación de roles, métricas, filtros y modales).
 
 ### Pruebas Unitarias del Frontend:
-El frontend cuenta con una suite completa de **98 pruebas unitarias** en Vitest, todas en estado aprobado (`98 passed`).
+El frontend cuenta con una suite completa de **106 pruebas unitarias** en Vitest, todas en estado aprobado (`106 passed`).
 
 ---
 

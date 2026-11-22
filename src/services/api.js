@@ -65,6 +65,65 @@ export const api = {
     return await res.json();
   },
 
+  async getUsuarioById(id) {
+    const res = await fetch(`${AUTH_API_URL}/usuarios/${id}`, {
+      headers: getAuthHeaders()
+    });
+    if (!res.ok) throw new Error('Usuario no encontrado');
+    return await res.json();
+  },
+
+  async crearUsuario(usuario) {
+    const res = await fetch(`${AUTH_API_URL}/usuarios`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(usuario)
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.message || 'Error al crear usuario');
+    }
+    return data;
+  },
+
+  async actualizarUsuario(id, usuario) {
+    const res = await fetch(`${AUTH_API_URL}/usuarios/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(usuario)
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.message || 'Error al actualizar usuario');
+    }
+    return data;
+  },
+
+  async cambiarRolUsuario(id, rol) {
+    const res = await fetch(`${AUTH_API_URL}/usuarios/${id}/rol`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ rol })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.message || 'Error al cambiar rol');
+    }
+    return data;
+  },
+
+  async eliminarUsuario(id) {
+    const res = await fetch(`${AUTH_API_URL}/usuarios/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.message || 'Error al eliminar usuario');
+    }
+    return data;
+  },
+
   // =================== 2. MICROSERVICIO TIENDA: PRODUCTOS Y PEDIDOS (Puerto 8082) ===================
   async getProductos(busqueda = '') {
     const url = busqueda
