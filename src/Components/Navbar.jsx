@@ -190,17 +190,28 @@ export default function Navbar({ currentUser, onLogout, theme: propTheme, onTogg
                       <span>Perfil</span>
                     </Link>
 
-                    {/* Botón ADMIN dentro del menú de Perfil (Oculto para usuarios clientes) */}
+                    {/* Botones ADMIN dentro del menú de Perfil (Oculto para usuarios clientes) */}
                     {!esCliente && (
-                      <Link
-                        to="/admin"
-                        className="dropdown-item dropdown-item-custom d-flex align-items-center gap-2 py-2 px-3 text-warning"
-                        role="menuitem"
-                        onClick={() => setUserOpen(false)}
-                      >
-                        <i className="bi bi-shield-lock"></i>
-                        <span>Admin</span>
-                      </Link>
+                      <>
+                        <Link
+                          to="/admin"
+                          className="dropdown-item dropdown-item-custom d-flex align-items-center gap-2 py-2 px-3 text-warning"
+                          role="menuitem"
+                          onClick={() => setUserOpen(false)}
+                        >
+                          <i className="bi bi-box-seam"></i>
+                          <span>Admin</span>
+                        </Link>
+                        <Link
+                          to="/admin/usuarios"
+                          className="dropdown-item dropdown-item-custom d-flex align-items-center gap-2 py-2 px-3 text-warning"
+                          role="menuitem"
+                          onClick={() => setUserOpen(false)}
+                        >
+                          <i className="bi bi-people-fill"></i>
+                          <span>Gestión Usuarios</span>
+                        </Link>
+                      </>
                     )}
 
                     <hr className="dropdown-divider border-secondary border-opacity-50 my-1" />

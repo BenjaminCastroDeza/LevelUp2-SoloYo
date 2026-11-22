@@ -9,6 +9,7 @@ import Carrito from './Pages/Carrito';
 import Registro from './Pages/Registro';
 import Login from './Pages/Login';
 import AdminProductos from './Pages/AdminProductos';
+import AdminUsuarios from './Pages/AdminUsuarios';
 import FormProducto from './Pages/FormProducto';
 import Perfil from './Pages/Perfil';
 import ProtectedRoute from './Components/ProtectedRoute';
@@ -110,6 +111,14 @@ export default function App() {
             element={
               <ProtectedRoute currentUser={currentUser} requiredRole="ROLE_ADMIN">
                 <AdminProductos />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/usuarios"
+            element={
+              <ProtectedRoute currentUser={currentUser} requiredRole="ROLE_ADMIN">
+                <AdminUsuarios currentUser={currentUser} />
               </ProtectedRoute>
             }
           />

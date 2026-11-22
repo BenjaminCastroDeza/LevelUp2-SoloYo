@@ -29,9 +29,14 @@ export default function AdminProductos() {
           <h1 className="brand-font text-white fs-2 mb-1">Panel de Administración</h1>
           <p className="text-secondary small mb-0">Gestión de inventario y catálogo de productos</p>
         </div>
-        <Link to="/admin/crear" className="btn btn-success fw-bold">
-          <i className="bi bi-plus-circle me-2"></i>Nuevo Producto
-        </Link>
+        <div className="d-flex gap-2">
+          <Link to="/admin/usuarios" className="btn btn-outline-warning">
+            <i className="bi bi-people-fill me-2"></i>Gestión Usuarios
+          </Link>
+          <Link to="/admin/crear" className="btn btn-success fw-bold">
+            <i className="bi bi-plus-circle me-2"></i>Nuevo Producto
+          </Link>
+        </div>
       </div>
 
       <div className="card-gamer p-4 border border-secondary rounded-3">
