@@ -52,8 +52,7 @@ CREATE TABLE `usuarios` (
 INSERT INTO `usuarios` (`id`, `nombre`, `correo`, `contrasena`, `telefono`, `region`, `comuna`, `rol`, `fecha_creacion`) VALUES
 (1, 'Administrador LevelUp', 'admin@levelup.cl', '$2a$10$h3lw6uu9qctZq7mBaiOrg.RY5b317Woy82qGBpM/haDNPQJH.5z8y', '+56 9 9999 8888', 'Region Metropolitana', 'Santiago', 'ROLE_ADMIN', '2026-11-20 10:00:00'),
 (2, 'Benjamin Castro', 'cliente@levelup.cl', '$2a$10$gHdSSSL7/sB7FCmmR6JQxui4aWAF66KDCHMGTeuYN9NH/dg6PQWAa', '+56 9 1234 5678', 'Region de Valparaiso', 'Viña del Mar', 'ROLE_CLIENTE', '2026-11-20 10:05:00'),
-(3, 'Vicente Cisternas', 'vicente@levelup.cl', '$2a$10$gHdSSSL7/sB7FCmmR6JQxui4aWAF66KDCHMGTeuYN9NH/dg6PQWAa', '+56 9 8765 4321', 'Region del bio Bio', 'Concepcion', 'ROLE_CLIENTE', '2026-11-21 14:30:00'),
-(4, 'Carlos Gamer Duoc', 'carlos.gamer@duocuc.cl', '$2a$10$gHdSSSL7/sB7FCmmR6JQxui4aWAF66KDCHMGTeuYN9NH/dg6PQWAa', '+56 9 5555 4444', 'Region Metropolitana', 'Providencia', 'ROLE_CLIENTE', '2026-11-22 09:15:00');
+(3, 'Vicente Cisternas', 'vicente@levelup.cl', '$2a$10$gHdSSSL7/sB7FCmmR6JQxui4aWAF66KDCHMGTeuYN9NH/dg6PQWAa', '+56 9 8765 4321', 'Region del bio Bio', 'Concepcion', 'ROLE_CLIENTE', '2026-11-21 14:30:00');
 
 
 -- ============================================================================
@@ -140,7 +139,7 @@ CREATE TABLE `detalle_pedidos` (
 -- ----------------------------------------------------------------------------
 INSERT INTO `pedidos` (`id`, `usuario_id`, `nombre_cliente`, `correo_cliente`, `fecha`, `total`, `descuento`, `cupon`) VALUES
 (1, 2, 'Benjamin Castro', 'cliente@levelup.cl', '2026-11-22 18:30:00', 89980.00, 0.00, NULL),
-(2, 4, 'Carlos Gamer Duoc', 'carlos.gamer@duocuc.cl', '2026-11-23 11:20:00', 47992.00, 11998.00, 'DUOC20');
+(2, 3, 'Vicente Cisternas', 'vicente@levelup.cl', '2026-11-23 11:20:00', 47992.00, 11998.00, 'LEVELUP20');
 
 INSERT INTO `detalle_pedidos` (`id`, `pedido_id`, `producto_id`, `nombre_producto`, `precio_unitario`, `cantidad`, `subtotal`) VALUES
 (1, 1, 'AC001', 'Controlador Inalámbrico Xbox Series X', 59990.00, 1, 59990.00),
